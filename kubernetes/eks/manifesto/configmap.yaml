@@ -1,0 +1,18 @@
+apiVersion: v1
+data:
+  SECRET_KEY: "django-insecure-g@ww%@j*fj+*p8se@*e9iqs9nnci0&5s)9e5)3^2ajoc^47hvu"
+  DEBUG: "0"
+  DATABASE_ENGINE: "django.db.backends.mysql"
+  DATABASE_DB: "django-db"
+  DATABASE_USER: "django"
+  DATABASE_PASSWORD: "django"
+  DATABASE_HOST: "db-clusterip"
+  DATABASE_PORT: "3306"
+  MYSQL_ROOT_PASSWORD: "root"
+  TZ: "Asia/Tokyo"
+  REACT_APP_REST_API_ENDPOINT: "https://pachira-blog.net"
+  CORS_ORIGIN_WHITELIST_ELEMENT: "https://pachira-blog.net"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: my-config

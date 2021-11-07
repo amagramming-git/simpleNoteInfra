@@ -1,0 +1,4 @@
+
+
+https://stackoverflow.com/questions/57206153/kubernetes-err-name-not-resolved
+https://www.datagraphi.com/blog/post/2021/2/10/kubernetes-guide-deploying-a-machine-learning-app-built-with-django-react-and-postgresql-using-kubernetes

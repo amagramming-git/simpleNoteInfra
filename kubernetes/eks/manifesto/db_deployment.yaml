@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    run: db
+  name: db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: db
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        run: db
+    spec:
+      containers:
+        - env:
+            # 環境変数の名前を定義
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  # ConfigMapの名前を指定
+                  name: my-config
+                  # ConfigMapのKeyを指定
+                  key: MYSQL_ROOT_PASSWORD
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DATABASE_DB
+            - name: MYSQL_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DATABASE_USER
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DATABASE_PASSWORD
+            - name: TZ
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: TZ
+          image: mysql:5.7
+          name: db
+          ports:
+            - containerPort: 3306
+          resources: {}
+          # volumeは今後の課題、そもそもデプロイメントではなくステートフルセット
+          args:
+            - mysqld
+            - --character-set-server=utf8
+            - --collation-server=utf8_unicode_ci
+status: {}

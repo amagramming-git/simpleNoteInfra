@@ -1,0 +1,57 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: django-migratejob
+spec:
+  template:
+    spec:
+      containers:
+        - env:
+            - name: SECRET_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: SECRET_KEY
+            - name: DEBUG
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DEBUG
+            - name: DATABASE_ENGINE
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DATABASE_ENGINE
+            - name: DATABASE_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DATABASE_DB
+            - name: DATABASE_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DATABASE_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DATABASE_PASSWORD
+            - name: DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DATABASE_HOST
+            - name: DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DATABASE_PORT
+            - name: CORS_ORIGIN_WHITELIST_ELEMENT
+              value: "http://192.168.99.103" # IngressのIPを設定する
+          image: kambe/minikubedjango:1.1
+          name: django-migratejob
+          command: ["python", "manage.py", "migrate"]
+      restartPolicy: Never
+  completions: 1
+status: {}

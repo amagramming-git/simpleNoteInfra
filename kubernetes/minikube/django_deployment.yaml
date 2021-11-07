@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    run: django
+  name: django
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: django
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        run: django
+    spec:
+      containers:
+        - env:
+            - name: SECRET_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: SECRET_KEY
+            - name: DEBUG
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DEBUG
+            - name: DATABASE_ENGINE
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DATABASE_ENGINE
+            - name: DATABASE_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DATABASE_DB
+            - name: DATABASE_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DATABASE_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DATABASE_PASSWORD
+            - name: DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DATABASE_HOST
+            - name: DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DATABASE_PORT
+            - name: CORS_ORIGIN_WHITELIST_ELEMENT
+              value: "http://192.168.99.103" # IngressのIPを設定する
+          image: kambe/minikubedjango:1.1
+          name: django
+          ports:
+            - containerPort: 8000
+          resources: {}
+          command:
+            ["python3", "manage.py", "runserver", "0.0.0.0:8000", "--insecure"]
+status: {}
