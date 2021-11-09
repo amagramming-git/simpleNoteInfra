@@ -42,6 +42,10 @@ services:
 # docker-compose exec app bash
 # python manage.py migrate
 # exit
+# test用のDatabaseを作成する
+# docker-compose exec db bash
+# mysql -h db -u root -p
+# GRANT ALL PRIVILEGES ON test_djangodb.* TO 'django'@'%';
 # 以下のURLでアクセスすると、アプリが使用できる。
 # http://localhost:3000/
 # サーバーを停止する場合には以下のコマンドを実行する
