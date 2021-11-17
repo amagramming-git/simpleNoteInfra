@@ -10,8 +10,8 @@ data:
   DATABASE_PORT: "3306"
   MYSQL_ROOT_PASSWORD: "root"
   TZ: "Asia/Tokyo"
-  REACT_APP_REST_API_ENDPOINT: "https://pachira-blog.net"
-  CORS_ORIGIN_WHITELIST_ELEMENT: "https://pachira-blog.net"
+  REACT_APP_REST_API_ENDPOINT: "http://a43bd16941d2844f4a785af223b05720-1428988137.ap-northeast-1.elb.amazonaws.com"
+  CORS_ORIGIN_WHITELIST_ELEMENT: "http://a43bd16941d2844f4a785af223b05720-1428988137.ap-northeast-1.elb.amazonaws.com"
 kind: ConfigMap
 metadata:
   creationTimestamp: null
