@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  namespace: simple-note
+  name: ingress-simple-note
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /admin/*
+            backend:
+              serviceName: django-nodeport
+              servicePort: 8000
+          - path: /api/*
+            backend:
+              serviceName: django-nodeport
+              servicePort: 8000
+          - path: /*
+            backend:
+              serviceName: react-nodeport
+              servicePort: 3000

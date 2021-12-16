@@ -5,7 +5,7 @@ services:
             context: ../simpleNoteReact
             dockerfile: Dockerfile
         volumes:
-            - ../simpleNoteReact/:/usr/src/app  # ローカルとコンテナ内の同期
+            - ../simpleNoteReact/:/usr/src/app # ローカルとコンテナ内の同期
         ports:
             - "3000:3000"
         env_file:
@@ -24,7 +24,7 @@ services:
         # --insecureオプションはDEBUGがFalseでもCSSを読み込むためのオプション
         command: python3 manage.py runserver 0.0.0.0:8000 --insecure
         volumes:
-            - ../simpleNoteDjango:/code   # ローカルとコンテナ内の同期
+            - ../simpleNoteDjango:/code # ローカルとコンテナ内の同期
         ports:
             - "8000:8000"
         env_file:

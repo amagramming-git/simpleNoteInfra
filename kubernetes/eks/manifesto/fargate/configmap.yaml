@@ -1,4 +1,8 @@
 apiVersion: v1
+metadata:
+  namespace: simple-note
+  creationTimestamp: null
+  name: my-config
 data:
   SECRET_KEY: "django-insecure-g@ww%@j*fj+*p8se@*e9iqs9nnci0&5s)9e5)3^2ajoc^47hvu"
   DEBUG: "0"
@@ -10,9 +14,6 @@ data:
   DATABASE_PORT: "3306"
   MYSQL_ROOT_PASSWORD: "root"
   TZ: "Asia/Tokyo"
-  REACT_APP_REST_API_ENDPOINT: "http://a48f96fe8c45b46db879e94ba4a2fc53-172935201.ap-northeast-1.elb.amazonaws.com"
-  CORS_ORIGIN_WHITELIST_ELEMENT: "http://a48f96fe8c45b46db879e94ba4a2fc53-172935201.ap-northeast-1.elb.amazonaws.com"
+  REACT_APP_REST_API_ENDPOINT: "http://k8s-simpleno-ingresss-0e44ba959d-1630395505.ap-northeast-1.elb.amazonaws.com"
+  CORS_ORIGIN_WHITELIST_ELEMENT: "http://k8s-simpleno-ingresss-0e44ba959d-1630395505.ap-northeast-1.elb.amazonaws.com"
 kind: ConfigMap
-metadata:
-  creationTimestamp: null
-  name: my-config

@@ -146,7 +146,7 @@ docker build -t simple-note-react .
 docker tag simple-note-react:latest 965398552090.dkr.ecr.ap-northeast-1.amazonaws.com/simple-note-react:v1.0
 docker push 965398552090.dkr.ecr.ap-northeast-1.amazonaws.com/simple-note-react:v1.0
 
-
+kubectl set image deployment.apps/react react=965398552090.dkr.ecr.ap-northeast-1.amazonaws.com/simple-note-react:v2.0
 
 
 
@@ -178,6 +178,15 @@ helm upgrade nginx-ingress-controller \
 
 マネージメントコンソールからRoute53でAレコードを手動で追加すると、DNSで接続することができるようになるよ
 
+```
+kubectl apply -f kubernetes/eks/manifesto/ecr/react_ingress.yaml \
+&& kubectl apply -f kubernetes/eks/manifesto/ecr/django_ingress.yaml
+```
+nginxにて作成されたロードバランサーのURLを以下のファイルに記載する。
+configmap.yaml
+
+
+
 DB作成
 ```
 kubectl apply -f kubernetes/eks/manifesto/ecr/configmap.yaml
@@ -195,14 +204,6 @@ exitしても削除されない場合は kubectl delete pod mysql-client
 ```
 
 
-kubectl apply -f kubernetes/eks/manifesto/ecr/react_ingress.yaml
-kubectl apply -f kubernetes/eks/manifesto/ecr/django_ingress.yaml
-
-nginxにて作成されたロードバランサーのURLを以下のファイルに記載する。
-react_deployment.yaml
-django_deployment.yaml
-django_migratejob.yaml
-
 
 マイグレーションの実行
 ```
@@ -212,8 +213,8 @@ kubectl apply -f kubernetes/eks/manifesto/ecr/django_migratejob.yaml
 次にdjangoの作成と接続確認
 作成
 ```
-kubectl apply -f kubernetes/eks/manifesto/ecr/django_deployment.yaml
-kubectl apply -f kubernetes/eks/manifesto/ecr/django_service.yaml
+kubectl apply -f kubernetes/eks/manifesto/ecr/django_deployment.yaml \
+&& kubectl apply -f kubernetes/eks/manifesto/ecr/django_service.yaml
 ```
 接続確認
 ブラウザから接続確認
@@ -224,10 +225,106 @@ http://ingressのADDRESSのIPアドレス/admin
 
 次にreactの作成と接続確認
 ```
-kubectl apply -f kubernetes/eks/manifesto/ecr/react_deployment.yaml
-kubectl apply -f kubernetes/eks/manifesto/ecr/react_service.yaml
+kubectl apply -f kubernetes/eks/manifesto/ecr/react_deployment.yaml \
+&& kubectl apply -f kubernetes/eks/manifesto/ecr/react_service.yaml
 ```
 
+
+
+
+## Fargateタイプで作成する
+https://docs.aws.amazon.com/ja_jp/eks/latest/userguide/aws-load-balancer-controller.html
+https://aws.amazon.com/jp/premiumsupport/knowledge-center/eks-kubernetes-services-cluster/
+https://docs.aws.amazon.com/ja_jp/eks/latest/userguide/alb-ingress.html
+https://qiita.com/Kta-M/items/3b99b849ad777c5dfd29
+
+
+export AWS_PROFILE=eks-demo  
+
+eksctl create cluster \
+  --name eks-from-eksctl \
+  --version 1.21 \
+  --fargate
+
+eksctl utils associate-iam-oidc-provider --cluster eks-from-eksctl --approve
+
+eksctl create iamserviceaccount \
+  --cluster=eks-from-eksctl \
+  --namespace=kube-system \
+  --name=aws-load-balancer-controller \
+  --attach-policy-arn=arn:aws:iam::965398552090:policy/AWSLoadBalancerControllerIAMPolicy \
+  --override-existing-serviceaccounts \
+  --approve
+
+kubectl get serviceaccount aws-load-balancer-controller --namespace kube-system
+
+
+kubectl apply -k "github.com/aws/eks-charts/stable/aws-load-balancer-controller//crds?ref=master"
+
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+    --set clusterName=eks-from-eksctl \
+    --set serviceAccount.create=false \
+    --set region=ap-northeast-1 \
+    --set vpcId=vpc-0e18d51a1e370de4e \
+    --set serviceAccount.name=aws-load-balancer-controller \
+    -n kube-system
+
+
+kubectl get deployment -n kube-system aws-load-balancer-controller
+
+
+
+EKS公式で出しているサンプルアプリのテスト
+
+eksctl create fargateprofile  \
+    --cluster eks-from-eksctl  \
+    --region ap-northeast-1  \
+    --name alb-sample-app-game-2048  \
+    --namespace game-2048
+
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.2.0/docs/examples/2048/2048_full.yaml
+
+サンプルアプリのクリーンアップ
+eksctl delete fargateprofile  --name alb-sample-app-game-2048 --cluster eks-from-eksctl
+
+kubectl delete -f https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.2.0/docs/examples/2048/2048_full.yaml
+
+
+シンプルノートの作成
+
+eksctl create fargateprofile  \
+    --cluster eks-from-eksctl  \
+    --region ap-northeast-1  \
+    --name simple-note-profile  \
+    --namespace simple-note
+
+
+kubectl apply -f kubernetes/eks/manifesto/fargate/namespace.yaml
+kubectl apply -f kubernetes/eks/manifesto/fargate/ingress.yaml
+
+以下のconfigmapの情報を上書きして作成する。
+kubectl get ing -n simple-note
+kubectl apply -f kubernetes/eks/manifesto/fargate/configmap.yaml
+
+DB作成
+```
+kubectl apply -f kubernetes/eks/manifesto/fargate/db_deployment.yaml \
+&& kubectl apply -f kubernetes/eks/manifesto/fargate/db_service.yaml
+```
+kubectl get po -n simple-note
+DBの起動を待ってからマイグレーションの実行
+```
+kubectl apply -f kubernetes/eks/manifesto/fargate/django_migratejob.yaml
+```
+
+次にdjangoとreactの作成と接続確認
+作成
+```
+kubectl apply -f kubernetes/eks/manifesto/fargate/django_deployment.yaml \
+&& kubectl apply -f kubernetes/eks/manifesto/fargate/django_service.yaml \
+&& kubectl apply -f kubernetes/eks/manifesto/fargate/react_deployment.yaml \
+&& kubectl apply -f kubernetes/eks/manifesto/fargate/react_service.yaml 
+```
 
 
 クリーンアップ
