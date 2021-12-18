@@ -4,10 +4,10 @@
 AWSアカウントを作成する。  
 IAMユーザー(Admin)を作成する。  
 アクセスキー・シークレットアクセスキーを払い出す。  
-絶対にGithubなどにアップロードしては行けない！！！！
+絶対にGithubなどにアップロードしてはいけない！！！！
 
 プロファイルの切り替え
-export AWS_PROFILE=eks-demo  
+export AWS_PROFILE=kambeAdmin 
 確認
 aws sts get-caller-identity  
 
@@ -239,7 +239,7 @@ https://docs.aws.amazon.com/ja_jp/eks/latest/userguide/alb-ingress.html
 https://qiita.com/Kta-M/items/3b99b849ad777c5dfd29
 
 
-export AWS_PROFILE=eks-demo  
+export AWS_PROFILE=kambeAdmin 
 
 eksctl create cluster \
   --name eks-from-eksctl \
