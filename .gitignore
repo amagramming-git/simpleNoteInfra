@@ -2,3 +2,7 @@ kubernetes/CS-CarrerKaizen-Kubernetes
 kubernetes/CS-CarrerKaizen-EKS
 terraform/CS-CarrerKaizen-Terraform
 terraform/CS-CarrerKaizen-Terraform-EKS
+terraform/main/.terraform
+terraform/main/.terraform.lock.hcl
+terraform/backend-remote-state-resource/.terraform
+terraform/backend-remote-state-resource/.terraform.lock.hcl
