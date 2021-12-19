@@ -2,33 +2,33 @@ version: '3'
 services:
     node:
         build:
-            context: ../simpleNoteReact
+            context: ../../simpleNoteReact
             dockerfile: Dockerfile
         volumes:
-            - ../simpleNoteReact/:/usr/src/app # ローカルとコンテナ内の同期
+            - ../../simpleNoteReact/:/usr/src/app # ローカルとコンテナ内の同期
         ports:
             - "3000:3000"
         env_file:
-            - ../simpleNoteReact/.env
+            - ../../simpleNoteReact/.env
     db:
         image: mysql:5.7
         env_file:
-            - ../simpleNoteMySQL/.env
+            - ../../simpleNoteMySQL/.env
         command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
         ports:
             - "3306:3306"
         volumes:
-            - ../simpleNoteMySQL/mysql_data:/var/lib/mysql
+            - ../../simpleNoteMySQL/mysql_data:/var/lib/mysql
     app:
-        build: ../simpleNoteDjango
+        build: ../../simpleNoteDjango
         # --insecureオプションはDEBUGがFalseでもCSSを読み込むためのオプション
         command: python3 manage.py runserver 0.0.0.0:8000 --insecure
         volumes:
-            - ../simpleNoteDjango:/code # ローカルとコンテナ内の同期
+            - ../../simpleNoteDjango:/code # ローカルとコンテナ内の同期
         ports:
             - "8000:8000"
         env_file:
-            - ../simpleNoteDjango/.env
+            - ../../simpleNoteDjango/.env
         depends_on:
             - db
 
