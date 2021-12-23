@@ -1,4 +1,4 @@
-# https://github.com/terraform-aws-modules/terraform-aws-s3-bucket
+# https://github.com/terraform-aws-modules/terraform-aws-s3-bucket 202112
 
 locals {
   attach_policy = var.attach_elb_log_delivery_policy || var.attach_lb_log_delivery_policy || var.attach_deny_insecure_transport_policy || var.attach_policy

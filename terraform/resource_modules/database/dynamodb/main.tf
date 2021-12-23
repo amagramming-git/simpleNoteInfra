@@ -1,4 +1,4 @@
-# https://github.com/terraform-aws-modules/terraform-aws-dynamodb-table
+# https://github.com/terraform-aws-modules/terraform-aws-dynamodb-table 202112
 
 resource "aws_dynamodb_table" "this" {
   count = var.create_table ? 1 : 0

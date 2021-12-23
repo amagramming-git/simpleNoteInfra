@@ -1,4 +1,4 @@
-# https://github.com/terraform-aws-modules/terraform-aws-vpc
+# https://github.com/terraform-aws-modules/terraform-aws-vpc 202112
 
 locals {
   max_subnet_length = max(
