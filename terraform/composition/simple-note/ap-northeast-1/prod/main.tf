@@ -21,6 +21,9 @@ module "vpc" {
   enable_dns_support   = var.enable_dns_support
   enable_nat_gateway   = var.enable_nat_gateway
   single_nat_gateway   = var.single_nat_gateway
+  # subnet tags for eks
+  public_subnet_tags   = local.public_subnet_tags
+  private_subnet_tags  = local.private_subnet_tags
 
   ########################################
   # Security Group
@@ -39,4 +42,24 @@ module "vpc" {
   databse_computed_ingress_with_eks_worker_source_security_group_ids   = local.databse_computed_ingress_with_eks_worker_source_security_group_ids
 
   # cluster_name = local.cluster_name
+}
+
+########################################
+# EKS
+########################################
+module "eks" {
+  source = "../../../../infrastructure_modules/eks"
+
+  ## EKS ##
+  create_eks      = var.create_eks
+  cluster_version = var.cluster_version
+  cluster_name    = local.cluster_name
+  vpc_id          = module.vpc.vpc_id
+  subnets         = module.vpc.private_subnets
+
+  ## Common tag metadata ##
+  env      = var.env
+  app_name = var.app_name
+  tags     = local.eks_tags
+  region   = var.region
 }

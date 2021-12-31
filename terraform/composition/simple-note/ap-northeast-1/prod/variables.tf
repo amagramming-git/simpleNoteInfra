@@ -82,7 +82,6 @@ variable "single_nat_gateway" {
 # }
 
 ## Database security group ##
-variable "create_eks" {}
 # variable "databse_computed_ingress_with_db_controller_source_security_group_id" {
 #   default = ""
 # }
@@ -96,3 +95,12 @@ variable "databse_computed_ingress_with_eks_worker_source_security_group_ids" {
 }
 
 # variable "cluster_name" {}
+
+########################################
+## EKS ## 
+########################################
+variable "create_eks" {}
+variable "cluster_version" {
+  description = "Kubernetes version to use for the EKS cluster."
+  type        = string
+}

@@ -1,4 +1,4 @@
-# EKS手順メモ
+# EKSonFargate手順メモ
 
 ## 下準備
 AWSアカウントを作成する。  
@@ -10,6 +10,76 @@ IAMユーザー(Admin)を作成する。
 export AWS_PROFILE=kambeAdmin 
 確認
 aws sts get-caller-identity  
+
+
+## ECRにimageをpushする。
+
+リポジトリを作成する。(terraformにて実施)
+
+
+【参考】
+もしaws cli で作成する場合は以下のコマンドを実施
+aws ecr create-repository --repository-name ${REPOSITORY_NAME} --region ${AWS_REGION}
+aws ecr describe-repositories --region ${AWS_REGION}
+
+dockerでecrのリポジトリにログインする
+aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin 965398552090.dkr.ecr.ap-northeast-1.amazonaws.com
+
+dockerFileのあるディレクトリで以下のようにコマンドを実行してイメージを作成する。
+docker build -t ${REPOSITORY_NAME} .
+docker tag ${REPOSITORY_NAME}:latest 965398552090.dkr.ecr.ap-northeast-1.amazonaws.com/${REPOSITORY_NAME}:v1.0
+docker push 965398552090.dkr.ecr.ap-northeast-1.amazonaws.com/${REPOSITORY_NAME}:v1.0
+
+
+## EKSの作成
+
+eksctl create cluster \
+  --name eks-from-eksctl \
+  --version 1.21 \
+  --fargate
+
+おおよそ20分くらいかかります、、、
+
+## EKSの作成
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+kubectl set image deployment.apps/react react=965398552090.dkr.ecr.ap-northeast-1.amazonaws.com/simple-note-react:v2.0
+
+
+
+
+
 
 ## EKSの作成
 eksctl create cluster \
@@ -130,23 +200,6 @@ eksctl delete cluster --name eks-from-eksctl --region ap-northeast-1
 
 ## ECRにimageをpushする。またそれをEKSで取得してデプロイする。
 
-まず変数宣言
-AWS_REGION=ap-northeast-1
-REPOSITORY_NAME=simple-note-react
-
-リポジトリを作成する。
-aws ecr create-repository --repository-name ${REPOSITORY_NAME} --region ${AWS_REGION}
-aws ecr describe-repositories --region ${AWS_REGION}
-
-dockerにログインする
-aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin 965398552090.dkr.ecr.ap-northeast-1.amazonaws.com
-
-dockerFileのあるディレクトリで以下のようにコマンドを実行してイメージを作成する。
-docker build -t simple-note-react .
-docker tag simple-note-react:latest 965398552090.dkr.ecr.ap-northeast-1.amazonaws.com/simple-note-react:v1.0
-docker push 965398552090.dkr.ecr.ap-northeast-1.amazonaws.com/simple-note-react:v1.0
-
-kubectl set image deployment.apps/react react=965398552090.dkr.ecr.ap-northeast-1.amazonaws.com/simple-note-react:v2.0
 
 
 
@@ -239,12 +292,6 @@ https://docs.aws.amazon.com/ja_jp/eks/latest/userguide/alb-ingress.html
 https://qiita.com/Kta-M/items/3b99b849ad777c5dfd29
 
 
-export AWS_PROFILE=kambeAdmin 
-
-eksctl create cluster \
-  --name eks-from-eksctl \
-  --version 1.21 \
-  --fargate
 
 eksctl utils associate-iam-oidc-provider --cluster eks-from-eksctl --approve
 

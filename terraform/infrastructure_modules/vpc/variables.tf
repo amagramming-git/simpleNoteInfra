@@ -76,10 +76,22 @@ variable "single_nat_gateway" {
 ########################################
 
 ## Public Security Group ##
+variable "public_subnet_tags" {
+  description = "Additional tags for the public subnets"
+  type        = map(string)
+  default     = {}
+}
+
 
 ## Private Security Group ##
 variable "bastion_sg_id" {
   default = ""
+}
+
+variable "private_subnet_tags" {
+  description = "Additional tags for the private subnets"
+  type        = map(string)
+  default     = {}
 }
 
 ## Database security group ##
@@ -94,7 +106,5 @@ variable "databse_computed_ingress_with_eks_worker_source_security_group_ids" {
     description              = string
   }))
 }
-
-# variable "cluster_name" {}
 
 

@@ -209,3 +209,4 @@ output "security_group_rule_cluster_https_worker_ingress" {
   description = "Security group rule responsible for allowing pods to communicate with the EKS cluster API."
   value       = aws_security_group_rule.cluster_https_worker_ingress
 }
+

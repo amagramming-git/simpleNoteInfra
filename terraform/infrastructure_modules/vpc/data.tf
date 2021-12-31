@@ -34,20 +34,19 @@ locals {
            })
          )
 
-  public_subnet_tags = {
-    # need to tag subnets with "shared" so K8s can find right subnets to create ELBs
-    # ref: https://github.com/kubernetes/kubernetes/issues/29298, https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/examples/basic/main.tf
-    # "kubernetes.io/cluster/${var.cluster_name}" = "shared"
-    # "kubernetes.io/role/elb"                    = 1 # need this tag for public ELB. Ref: https://docs.aws.amazon.com/eks/latest/userguide/network_reqs.html
-    "Tier"                                      = "public"
-  }
+  public_subnet_tags = merge(
+                         var.public_subnet_tags, 
+                         tomap({
+                             "VPC-Name" = "public"
+                         })
+                       )
 
-  # need tag for internal-elb to be able to create ELB
-  private_subnet_tags = {
-    # "kubernetes.io/cluster/${var.cluster_name}" = "shared"
-    # "kubernetes.io/role/internal-elb"           = 1 # need this tag for internal ELB. Ref: https://docs.aws.amazon.com/eks/latest/userguide/network_reqs.html
-    "Tier"                                      = "private"
-  }
+  private_subnet_tags = merge(
+                         var.private_subnet_tags, 
+                         tomap({
+                             "VPC-Name" = "private"
+                         })
+                        )
 
   database_subnet_tags = {
     "Tier" = "database"

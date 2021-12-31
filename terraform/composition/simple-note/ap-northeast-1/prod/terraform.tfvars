@@ -20,5 +20,8 @@ enable_nat_gateway    = "true" # need internet connection for worker nodes in pr
 single_nat_gateway    = "true"
 
 
-## Public Security Group ##
-create_eks = false
+########################################
+# EKS
+########################################
+create_eks = true
+cluster_version = 1.21
