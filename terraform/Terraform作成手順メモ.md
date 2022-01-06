@@ -20,7 +20,7 @@ terraform apply
 terraform destroy
 
 
-export KUBECONFIG="${PWD}/kubeconfig_eks-apne1-prod-terraform-eks-demo-infra"
+export KUBECONFIG="${PWD}/kubeconfig_eks-tokyo-prod-simple-note"
 
 
 
@@ -31,12 +31,25 @@ terraform init -backend-config=backend.config
 terraform plan
 terraform apply
 
-## ingressを作成
-以下terraformで作成できるものもある。徐々にterraformに移行していく
-
-プロファイルの切り替え
+## プロファイルの切り替え
 export AWS_PROFILE=kambeAdmin 
 export KUBECONFIG="${PWD}/kubeconfig_eks-tokyo-prod-simple-note"
+
+
+## CoreDNS の更新
+参考 https://docs.aws.amazon.com/ja_jp/eks/latest/userguide/fargate-getting-started.html
+
+kubectl patch deployment coredns \
+    -n kube-system \
+    --type json \
+    -p='[{"op": "remove", "path": "/spec/template/metadata/annotations/eks.amazonaws.com~1compute-type"}]'
+
+
+## aws-load-balancer-controllerを作成
+kubectl apply -f /Users/kanbesatoru/00.PersonalFolders/simpleNote/simpleNoteInfra/kubernetes/v2_3_0_full.yaml
+kubectl delete -f /Users/kanbesatoru/00.PersonalFolders/simpleNote/simpleNoteInfra/kubernetes/v2_3_0_full.yaml
+
+
 
 
 eksctl utils associate-iam-oidc-provider --cluster 	eks-tokyo-prod-simple-note --approve
@@ -44,7 +57,7 @@ eksctl create iamserviceaccount \
   --cluster=eks-tokyo-prod-simple-note \
   --namespace=kube-system \
   --name=aws-load-balancer-controller \
-  --attach-policy-arn=arn:aws:iam::965398552090:policy/AwsLoadBalancerControllerForEksIamPolicy \
+  --attach-policy-arn=arn:aws:iam::965398552090:policy/AWSLoadBalancerControllerIAMPolicy \
   --override-existing-serviceaccounts \
   --approve
 
@@ -57,12 +70,12 @@ helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
     --set clusterName=eks-tokyo-prod-simple-note \
     --set serviceAccount.create=false \
     --set region=ap-northeast-1 \
-    --set vpcId=vpc-002d885f912e7f7f1 \
+    --set vpcId=vpc-001a9c9b254297493 \
     --set serviceAccount.name=aws-load-balancer-controller \
     -n kube-system
 
 watch "kubectl get deployment -n kube-system aws-load-balancer-controller"
-
+kubectl describe deployment aws-load-balancer-controller -n kube-system 
 
 eksctl create fargateprofile  \
     --cluster eks-tokyo-prod-simple-note  \
@@ -72,6 +85,8 @@ eksctl create fargateprofile  \
 
 
 helm uninstall aws-load-balancer-controller -n kube-system
+kubectl delete -k "github.com/aws/eks-charts/stable/aws-load-balancer-controller//crds?ref=master"
+
 eksctl delete iamserviceaccount --cluster eks-tokyo-prod-simple-note --namespace kube-system --name aws-load-balancer-controller
 aws eks list-fargate-profiles --cluster-name eks-tokyo-prod-simple-note
 aws eks delete-fargate-profile --fargate-profile-name fargate-profile-default --cluster-name eks-tokyo-prod-simple-note

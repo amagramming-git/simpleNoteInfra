@@ -240,3 +240,8 @@ output "fargate_profile_arns" {
   description = "Outputs from node groups"
   value       = module.eks.fargate_profile_arns
 }
+
+output "oidc_provider_arn" {
+  description = "The ARN of the OIDC Provider if `enable_irsa = true`."
+  value       = module.eks.oidc_provider_arn
+}

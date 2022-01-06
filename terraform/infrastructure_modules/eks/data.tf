@@ -11,6 +11,8 @@ locals {
             "Example"      = var.cluster_name
             "GithubRepo"   = "terraform-aws-eks"
             "GithubOrg"    = "terraform-aws-modules"
+            "alpha.eksctl.io/cluster-name" = var.cluster_name
+            "eksctl.cluster.k8s.io/v1alpha1/cluster-name" = var.cluster_name
         },
         local.eks-owned-tag,
         var.tags

@@ -13,22 +13,18 @@ module "eks_cluster_fargate" {
 
   vpc_id          = var.vpc_id
   subnets         = var.subnets
+  fargate_subnets = var.fargate_subnets
   kubeconfig_name = var.cluster_name
 
   cluster_endpoint_private_access = true
   cluster_endpoint_public_access  = true
+  enable_irsa     = var.enable_irsa
   manage_aws_auth = false
 
   fargate_profiles = {
     default = {
       name = "default"
       selectors = [
-        {
-          namespace = "kube-system"
-          labels = {
-            k8s-app = "kube-dns"
-          }
-        },
         {
           namespace = "default"
           labels = {
@@ -44,6 +40,22 @@ module "eks_cluster_fargate" {
         delete = "20m"
       }
     }
+    # https://docs.aws.amazon.com/ja_jp/eks/latest/userguide/fargate-getting-started.html
+    coredns = {
+      name = "coredns"
+      selectors = [
+        {
+          namespace = "kube-system"
+          labels = {
+            k8s-app = "kube-dns"
+          }
+        }
+      ]
+      subnets = var.fargate_subnets
+      tags = {
+        Owner = "coredns"
+      }
+    }
     game-2048 = {
       name = "game-2048"
       selectors = [
@@ -51,21 +63,10 @@ module "eks_cluster_fargate" {
           namespace = "game-2048"
         }
       ]
-      subnets = var.subnets
+      subnets = var.fargate_subnets
       tags = {
         Owner = "game-2048"
       }
     }
   }
-}
-
-module "lb-controller" {
-  source       = "../../resource_modules/container/eksFromYoung-ook/modules/lb-controller"
-  enabled      = false
-  cluster_name = module.eks_cluster_fargate.cluster_id
-  oidc         = zipmap(
-    ["url", "arn"],
-    [module.eks_cluster_fargate.cluster_oidc_issuer_url, module.eks_cluster_fargate.oidc_provider_arn]
-  )
-  tags         = var.tags
 }

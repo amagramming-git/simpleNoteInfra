@@ -38,6 +38,12 @@ output "cluster_oidc_issuer_url" {
   value       = module.eks_cluster_fargate.cluster_oidc_issuer_url
 }
 
+output "oidc_provider_arn" {
+  description = "The ARN of the OIDC Provider if `enable_irsa = true`."
+  value       = module.eks_cluster_fargate.oidc_provider_arn
+}
+
+
 output "cloudwatch_log_group_name" {
   description = "Name of cloudwatch log group created"
   value       = module.eks_cluster_fargate.cloudwatch_log_group_name

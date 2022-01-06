@@ -49,6 +49,8 @@ eksctl create cluster \
 
 
 
+## クリーンアップ
+eksctl delete cluster --name eks-from-eksctl --region ap-northeast-1
 
 
 
@@ -304,7 +306,7 @@ eksctl create iamserviceaccount \
   --approve
 
 kubectl get serviceaccount aws-load-balancer-controller --namespace kube-system
-
+kubectl describe serviceaccount aws-load-balancer-controller --namespace kube-system
 
 kubectl apply -k "github.com/aws/eks-charts/stable/aws-load-balancer-controller//crds?ref=master"
 
@@ -312,7 +314,7 @@ helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
     --set clusterName=eks-from-eksctl \
     --set serviceAccount.create=false \
     --set region=ap-northeast-1 \
-    --set vpcId=vpc-0e18d51a1e370de4e \
+    --set vpcId=vpc-00f4e26f58bbf36bd  \
     --set serviceAccount.name=aws-load-balancer-controller \
     -n kube-system
 
@@ -374,8 +376,6 @@ kubectl apply -f kubernetes/eks/manifesto/fargate/django_deployment.yaml \
 ```
 
 
-クリーンアップ
-eksctl delete cluster --name eks-from-eksctl --region ap-northeast-1
 
 ## GitにpushするたびにECRにイメージをpushする
 https://nvie.com/posts/a-successful-git-branching-model/

@@ -1,6 +1,7 @@
 ########################################
 # Simple note infra
 ########################################
+
 module "vpc" {
   source = "../../../../infrastructure_modules/vpc" # using infra module VPC which acts like a facade to many sub-resources
   ## Common tag metadata ##
@@ -31,35 +32,40 @@ module "vpc" {
   ## Public Security Group ##
 
   ## Private Security Group ##
-  # bastion EC2 not created yet
-  # bastion_sg_id  = module.bastion.security_group_id
 
   ## Database security group ##
-  # DB Controller EC2 not created yet
-  # databse_computed_ingress_with_db_controller_source_security_group_id = module.db_controller_instance.security_group_id
   create_eks                                                           = var.create_eks
-  # pass EKS worker SG to DB SG after creating EKS module at composition layer
   databse_computed_ingress_with_eks_worker_source_security_group_ids   = local.databse_computed_ingress_with_eks_worker_source_security_group_ids
 
-  # cluster_name = local.cluster_name
 }
 
-########################################
-# EKS
-########################################
 module "eks" {
   source = "../../../../infrastructure_modules/eks"
-
-  ## EKS ##
-  create_eks      = var.create_eks
-  cluster_version = var.cluster_version
-  cluster_name    = local.cluster_name
-  vpc_id          = module.vpc.vpc_id
-  subnets         = module.vpc.private_subnets
-
   ## Common tag metadata ##
   env      = var.env
   app_name = var.app_name
   tags     = local.eks_tags
   region   = var.region
+
+  ########################################
+  ## EKS ##
+  ########################################
+  create_eks      = var.create_eks
+  cluster_version = var.cluster_version
+  cluster_name    = local.cluster_name
+  vpc_id          = module.vpc.vpc_id
+  subnets         = concat(module.vpc.public_subnets,module.vpc.private_subnets)
+  fargate_subnets = module.vpc.private_subnets
+
+  enable_irsa     = true
+}
+
+module "eks-lb-controller" {
+  source = "../../../../infrastructure_modules/lb-controller"
+
+  cluster_name    = local.cluster_name
+  oidc_url        = module.eks.cluster_oidc_issuer_url
+  oidc_arn        = module.eks.oidc_provider_arn
+  aws_vpc_id      = module.vpc.vpc_id
+  aws_region_name = var.region
 }
