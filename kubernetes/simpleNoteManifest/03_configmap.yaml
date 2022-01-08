@@ -14,6 +14,6 @@ data:
   DATABASE_PORT: "3306"
   MYSQL_ROOT_PASSWORD: "root"
   TZ: "Asia/Tokyo"
-  REACT_APP_REST_API_ENDPOINT: "http://k8s-simpleno-ingresss-0e44ba959d-1630395505.ap-northeast-1.elb.amazonaws.com"
-  CORS_ORIGIN_WHITELIST_ELEMENT: "http://k8s-simpleno-ingresss-0e44ba959d-1630395505.ap-northeast-1.elb.amazonaws.com"
+  REACT_APP_REST_API_ENDPOINT: "http://k8s-simpleno-ingresss-b145ec1c7d-1436139716.ap-northeast-1.elb.amazonaws.com"
+  CORS_ORIGIN_WHITELIST_ELEMENT: "http://k8s-simpleno-ingresss-b145ec1c7d-1436139716.ap-northeast-1.elb.amazonaws.com"
 kind: ConfigMap

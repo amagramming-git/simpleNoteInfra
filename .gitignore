@@ -5,3 +5,4 @@ terraform/#CS-CarrerKaizen-Terraform-EKS
 terraform/#old
 terraform/composition/terraform-remote-backend/ap-northeast-1/prod/.terraform
 terraform/composition/simple-note/ap-northeast-1/prod/.terraform
+terraform/composition/simple-note/ap-northeast-1/prod/kubeconfig_eks-tokyo-prod-simple-note

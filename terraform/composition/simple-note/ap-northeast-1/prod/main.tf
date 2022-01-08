@@ -61,11 +61,14 @@ module "eks" {
 }
 
 module "eks-lb-controller" {
-  source = "../../../../infrastructure_modules/lb-controller"
+  source = "../../../../infrastructure_modules/aws-load-balancer-controller"
 
   cluster_name    = local.cluster_name
   oidc_url        = module.eks.cluster_oidc_issuer_url
   oidc_arn        = module.eks.oidc_provider_arn
   aws_vpc_id      = module.vpc.vpc_id
   aws_region_name = var.region
+  depends_on = [
+    module.eks,
+  ]
 }

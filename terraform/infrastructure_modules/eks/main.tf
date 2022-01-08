@@ -22,23 +22,18 @@ module "eks_cluster_fargate" {
   manage_aws_auth = false
 
   fargate_profiles = {
-    default = {
-      name = "default"
+    fp-default = {
+      name = "fp-default"
       selectors = [
         {
           namespace = "default"
-          labels = {
-            WorkerType = "fargate"
-          }
+        },
+        {
+          namespace = "kube-system"
         }
       ]
-      tags = {
-        Owner = "default"
-      }
-      timeouts = {
-        create = "20m"
-        delete = "20m"
-      }
+      subnets = var.fargate_subnets
+      tags = {}
     }
     # https://docs.aws.amazon.com/ja_jp/eks/latest/userguide/fargate-getting-started.html
     coredns = {
@@ -66,6 +61,18 @@ module "eks_cluster_fargate" {
       subnets = var.fargate_subnets
       tags = {
         Owner = "game-2048"
+      }
+    }
+    simple-note = {
+      name = "simple-note"
+      selectors = [
+        {
+          namespace = "simple-note"
+        }
+      ]
+      subnets = var.fargate_subnets
+      tags = {
+        Owner = "simple-note"
       }
     }
   }
