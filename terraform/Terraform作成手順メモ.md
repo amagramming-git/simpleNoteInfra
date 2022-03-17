@@ -119,8 +119,14 @@ terraform destroy
 ```
 
 
-
-
+## 今後の展望
+CoreDNS の更新とか、
+kubernetesのリソースとかもterraform化するのも良い気がする。
+でも多分現状(2021年12月時点)ではdeploymentがterraform対応していないので、
+他のものをterraform化してもdeploymentが残ってしまうのはナンセンスなので、保留。
+ただnamespaceとかingressとかconfigmapくらいはコード化してもいいかも。
+https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/namespace
+https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/ingress
 
 
 
@@ -176,3 +182,5 @@ eksctl delete iamserviceaccount --cluster eks-tokyo-prod-simple-note --namespace
 
 https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.1/guide/ingress/annotations/
 https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.1/guide/ingress/cert_discovery/
+
+
