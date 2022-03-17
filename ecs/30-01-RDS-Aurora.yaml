@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Db-RdsDbInstance"
+Mappings:
+  LocalValueMap:
+    LocalValues:
+      AZ1: "us-east-2a" #オハイオ
+      AZ2: "us-east-2b" #オハイオ
+
+Resources:
+  ### DBSubnetGroup ######################################
+  DbSubnetGroup:
+    Type: "AWS::RDS::DBSubnetGroup"
+    Properties:
+      DBSubnetGroupDescription: "DbSubnetGroup"
+      DBSubnetGroupName: "db-subnetgroup"
+      SubnetIds:
+        - !ImportValue "Subnet4Id"
+        - !ImportValue "Subnet8Id"
+
+  ### DbClusterParameterGroup ######################################
+  DbClusterParameterGroup:
+    Type: AWS::RDS::DBClusterParameterGroup
+    Properties:
+      Description: CloudFormation Aurora Cluster Parameter Group
+      Family: aurora5.6
+      Parameters:
+        server_audit_logging: 0
+
+  ### DbCluster ##########################################
+  DbCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      AvailabilityZones:
+        - !FindInMap [LocalValueMap, LocalValues, AZ1]
+        - !FindInMap [LocalValueMap, LocalValues, AZ2]
+      BackupRetentionPeriod: 1
+      CopyTagsToSnapshot: true
+      DatabaseName: "djangodb"
+      DBClusterIdentifier: "auroracluster-serverless-01"
+      DBClusterParameterGroupName: !Ref "DbClusterParameterGroup"
+      DBSubnetGroupName: !Ref DbSubnetGroup
+      DeletionProtection: false
+      Engine: aurora
+      EngineMode: serverless
+      EngineVersion: 5.6.10a
+      MasterUsername: "django"
+      MasterUserPassword: "mustchange3eCirqDt"
+      PreferredBackupWindow: 22:00-22:30 # JST 7:00-7:30
+      PreferredMaintenanceWindow: sat:22:30-sat:23:00 # JST 7:30-8:00
+      ScalingConfiguration:
+        MinCapacity: 1
+        MaxCapacity: 1
+        AutoPause: true
+        SecondsUntilAutoPause: 300
+      StorageEncrypted: true
+      Tags:
+        - Key: Name
+          Value: "auroracluster-serverless-01"
+      VpcSecurityGroupIds:
+        - !ImportValue DbSecurityGroupId

@@ -1,0 +1,74 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "SecurityGroup"
+Resources:
+  ### Security Group #####################################################
+  AlbSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "AlbSecurityGroup"
+      VpcId: !ImportValue "VpcId"
+      SecurityGroupIngress:
+        - IpProtocol: "tcp"
+          FromPort: "443"
+          ToPort: "443"
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: "Name"
+          Value: "alb-sg"
+  ReactSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "ReactSecurityGroup"
+      VpcId: !ImportValue "VpcId"
+      SecurityGroupIngress:
+        - IpProtocol: "tcp"
+          FromPort: "3000"
+          ToPort: "3000"
+          SourceSecurityGroupId: !Ref "AlbSecurityGroup"
+      Tags:
+        - Key: "Name"
+          Value: "react-sg"
+  DjangoSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "DjangoSecurityGroup"
+      VpcId: !ImportValue "VpcId"
+      SecurityGroupIngress:
+        - IpProtocol: "tcp"
+          FromPort: "8000"
+          ToPort: "8000"
+          SourceSecurityGroupId: !Ref "AlbSecurityGroup"
+      Tags:
+        - Key: "Name"
+          Value: "react-sg"
+  DbSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "DbSecurityGroup"
+      VpcId: !ImportValue "VpcId"
+      SecurityGroupIngress:
+        - IpProtocol: "tcp"
+          FromPort: "3306"
+          ToPort: "3306"
+          SourceSecurityGroupId: !Ref "DjangoSecurityGroup"
+      Tags:
+        - Key: "Name"
+          Value: "db-sg"
+
+Outputs:
+  AlbSecurityGroupId:
+    Value: !Ref "AlbSecurityGroup"
+    Export:
+      Name: "AlbSecurityGroupId"
+  ReactSecurityGroupId:
+    Value: !Ref "ReactSecurityGroup"
+    Export:
+      Name: "ReactSecurityGroupId"
+  DjangoSecurityGroupId:
+    Value: !Ref "DjangoSecurityGroup"
+    Export:
+      Name: "DjangoSecurityGroupId"
+  DbSecurityGroupId:
+    Value: !Ref "DbSecurityGroup"
+    Export:
+      Name: "DbSecurityGroupId"

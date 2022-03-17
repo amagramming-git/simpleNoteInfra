@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "AutoScaling"
+Resources:
+  ServiceAutoScalingRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: application-autoscaling.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: "autoscaling-Policy"
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - application-autoscaling:*
+                  - cloudwatch:DescribeAlarms
+                  - cloudwatch:PutMetricAlarm
+                  - ecs:DescribeServices
+                  - ecs:UpdateService
+                Resource: "*"
+
+  ReactServiceScalingTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    DependsOn: ServiceAutoScalingRole
+    Properties:
+      MinCapacity: 1
+      MaxCapacity: 1
+      ResourceId: !Sub
+        - service/${EcsClusterName}/${EcsServiceName}
+        - EcsClusterName: !ImportValue EcsClusterName
+          EcsServiceName: !ImportValue ECSServiceName
+      RoleARN: !GetAtt ServiceAutoScalingRole.Arn
+      ScalableDimension: ecs:service:DesiredCount
+      ServiceNamespace: ecs
+
+  DjangoServiceScalingTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    DependsOn: ServiceAutoScalingRole
+    Properties:
+      MinCapacity: 1
+      MaxCapacity: 1
+      ResourceId: !Sub
+        - service/${EcsClusterName}/${EcsServiceName}
+        - EcsClusterName: !ImportValue EcsClusterName
+          EcsServiceName: !ImportValue ECSServiceName
+      RoleARN: !GetAtt ServiceAutoScalingRole.Arn
+      ScalableDimension: ecs:service:DesiredCount
+      ServiceNamespace: ecs

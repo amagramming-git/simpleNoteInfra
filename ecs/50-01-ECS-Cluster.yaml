@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "ECS"
+Resources:
+  ### ECS CLUSTER #####################
+  EcsCluster:
+    Type: "AWS::ECS::Cluster"
+    Properties:
+      ClusterName: "ecs"
+
+  ### EcsTaskExecutionRole #####################
+  EcsTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: "ecs-taskexecution-role"
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      Policies:
+        - PolicyName: "secretsmanager-GetSecretValue-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "secretsmanager:GetSecretValue"
+                  - "kms:Decrypt"
+                Resource: "*"
+      Tags:
+        - Key: Name
+          Value: "ecs-taskexecution-role"
+
+Outputs:
+  EcsClusterName:
+    Value: !Ref "EcsCluster"
+    Export:
+      Name: "EcsClusterName"
+  EcsTaskExecutionRoleName:
+    Value: !Ref "EcsTaskExecutionRole"
+    Export:
+      Name: "EcsTaskExecutionRoleName"
+  EcsTaskExecutionRoleArn:
+    Value: !GetAtt "EcsTaskExecutionRole.Arn"
+    Export:
+      Name: "EcsTaskExecutionRoleArn"

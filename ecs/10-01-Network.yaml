@@ -1,0 +1,300 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Network"
+Mappings:
+  LocalValueMap:
+    LocalValues:
+      VpcCidr: "172.24.0.0/20"
+      Subnet1Cidr: "172.24.1.0/24"
+      Subnet2Cidr: "172.24.2.0/24"
+      Subnet3Cidr: "172.24.3.0/24"
+      Subnet4Cidr: "172.24.4.0/24"
+      Subnet5Cidr: "172.24.5.0/24"
+      Subnet6Cidr: "172.24.6.0/24"
+      Subnet7Cidr: "172.24.7.0/24"
+      Subnet8Cidr: "172.24.8.0/24"
+      AZ1: "us-east-2a" #オハイオ
+      AZ2: "us-east-2b" #オハイオ
+
+Resources:
+  ### vpc #######################################################################
+  Vpc:
+    Type: "AWS::EC2::VPC"
+    Properties:
+      CidrBlock: !FindInMap [LocalValueMap, LocalValues, VpcCidr]
+      EnableDnsSupport: "true"
+      EnableDnsHostnames: "true"
+      InstanceTenancy: "default"
+      Tags:
+        - Key: Name
+          Value: "cfn-vpc"
+
+  InternetGateway:
+    Type: "AWS::EC2::InternetGateway"
+    Properties:
+      Tags:
+        - Key: Name
+          Value: "cfn-internet-gateway"
+
+  InternetGatewayAttachment:
+    Type: "AWS::EC2::VPCGatewayAttachment"
+    Properties:
+      VpcId: !Ref "Vpc"
+      InternetGatewayId: !Ref "InternetGateway"
+
+  ### subnet #######################################################################
+  Subnet1:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref "Vpc"
+      CidrBlock: !FindInMap [LocalValueMap, LocalValues, Subnet1Cidr]
+      MapPublicIpOnLaunch: "true"
+      AvailabilityZone: !FindInMap [LocalValueMap, LocalValues, AZ1]
+      Tags:
+        - Key: Name
+          Value: "subnet1"
+
+  Subnet2:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref "Vpc"
+      CidrBlock: !FindInMap [LocalValueMap, LocalValues, Subnet2Cidr]
+      MapPublicIpOnLaunch: "true"
+      AvailabilityZone: !FindInMap [LocalValueMap, LocalValues, AZ1]
+      Tags:
+        - Key: Name
+          Value: "subnet2"
+
+  Subnet3:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref "Vpc"
+      CidrBlock: !FindInMap [LocalValueMap, LocalValues, Subnet3Cidr]
+      MapPublicIpOnLaunch: "true"
+      AvailabilityZone: !FindInMap [LocalValueMap, LocalValues, AZ1]
+      Tags:
+        - Key: Name
+          Value: "subnet3"
+
+  Subnet4:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref "Vpc" #サブネットを作成する仮想ネットワーク
+      CidrBlock: !FindInMap [LocalValueMap, LocalValues, Subnet4Cidr]
+      MapPublicIpOnLaunch: "true"
+      AvailabilityZone: !FindInMap [LocalValueMap, LocalValues, AZ1]
+      Tags:
+        - Key: Name
+          Value: "subnet4"
+
+  Subnet5:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref "Vpc" #サブネットを作成する仮想ネットワーク
+      CidrBlock: !FindInMap [LocalValueMap, LocalValues, Subnet5Cidr]
+      MapPublicIpOnLaunch: "true"
+      AvailabilityZone: !FindInMap [LocalValueMap, LocalValues, AZ2]
+      Tags:
+        - Key: Name
+          Value: "subnet5"
+
+  Subnet6:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref "Vpc" #サブネットを作成する仮想ネットワーク
+      CidrBlock: !FindInMap [LocalValueMap, LocalValues, Subnet6Cidr]
+      MapPublicIpOnLaunch: "true"
+      AvailabilityZone: !FindInMap [LocalValueMap, LocalValues, AZ2]
+      Tags:
+        - Key: Name
+          Value: "subnet6"
+
+  Subnet7:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref "Vpc" #サブネットを作成する仮想ネットワーク
+      CidrBlock: !FindInMap [LocalValueMap, LocalValues, Subnet7Cidr]
+      MapPublicIpOnLaunch: "true"
+      AvailabilityZone: !FindInMap [LocalValueMap, LocalValues, AZ2]
+      Tags:
+        - Key: Name
+          Value: "subnet7"
+
+  Subnet8:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref "Vpc" #サブネットを作成する仮想ネットワーク
+      CidrBlock: !FindInMap [LocalValueMap, LocalValues, Subnet8Cidr]
+      MapPublicIpOnLaunch: "true"
+      AvailabilityZone: !FindInMap [LocalValueMap, LocalValues, AZ2]
+      Tags:
+        - Key: Name
+          Value: "subnet8"
+
+  ### Route Table #############################################################
+  AlbRouteTable:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId: !Ref "Vpc"
+      Tags:
+        - Key: Name
+          Value: "alb-routetable"
+
+  ReactRouteTable:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId: !Ref "Vpc"
+      Tags:
+        - Key: Name
+          Value: "react-routetable"
+
+  DjangoRouteTable:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId: !Ref "Vpc"
+      Tags:
+        - Key: Name
+          Value: "django-routetable"
+
+  DbRouteTable:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId: !Ref "Vpc"
+      Tags:
+        - Key: Name
+          Value: "db-routetable"
+
+  DefaultAlbRouteTable:
+    Type: "AWS::EC2::Route"
+    Properties:
+      RouteTableId: !Ref "AlbRouteTable"
+      DestinationCidrBlock: "0.0.0.0/0"
+      GatewayId: !Ref "InternetGateway"
+
+  DefaultReactRouteTable:
+    Type: "AWS::EC2::Route"
+    Properties:
+      RouteTableId: !Ref "ReactRouteTable"
+      DestinationCidrBlock: "0.0.0.0/0"
+      GatewayId: !Ref "InternetGateway"
+
+  DefaultDjangoRouteTable:
+    Type: "AWS::EC2::Route"
+    Properties:
+      RouteTableId: !Ref "DjangoRouteTable"
+      DestinationCidrBlock: "0.0.0.0/0"
+      GatewayId: !Ref "InternetGateway"
+
+  ### SubnetRouteTableAssociation ###########################################
+  Subnet1RouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref "Subnet1"
+      RouteTableId: !Ref "AlbRouteTable"
+
+  Subnet2RouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref "Subnet2"
+      RouteTableId: !Ref "ReactRouteTable"
+
+  Subnet3RouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref "Subnet3"
+      RouteTableId: !Ref "DjangoRouteTable"
+
+  Subnet4RouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref "Subnet4"
+      RouteTableId: !Ref "DbRouteTable"
+
+  Subnet5RouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref "Subnet5"
+      RouteTableId: !Ref "AlbRouteTable"
+
+  Subnet6RouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref "Subnet6"
+      RouteTableId: !Ref "ReactRouteTable"
+
+  Subnet7RouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref "Subnet7"
+      RouteTableId: !Ref "DjangoRouteTable"
+
+  Subnet8RouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref "Subnet8"
+      RouteTableId: !Ref "DbRouteTable"
+
+Outputs:
+  VpcId:
+    Value: !Ref "Vpc"
+    Export:
+      Name: "VpcId"
+
+  Subnet1Id:
+    Value: !Ref "Subnet1"
+    Export:
+      Name: "Subnet1Id"
+
+  Subnet2Id:
+    Value: !Ref "Subnet2"
+    Export:
+      Name: "Subnet2Id"
+
+  Subnet3Id:
+    Value: !Ref "Subnet3"
+    Export:
+      Name: "Subnet3Id"
+
+  Subnet4Id:
+    Value: !Ref "Subnet4"
+    Export:
+      Name: "Subnet4Id"
+
+  Subnet5Id:
+    Value: !Ref "Subnet5"
+    Export:
+      Name: "Subnet5Id"
+
+  Subnet6Id:
+    Value: !Ref "Subnet6"
+    Export:
+      Name: "Subnet6Id"
+
+  Subnet7Id:
+    Value: !Ref "Subnet7"
+    Export:
+      Name: "Subnet7Id"
+
+  Subnet8Id:
+    Value: !Ref "Subnet8"
+    Export:
+      Name: "Subnet8Id"
+
+  AlbRouteTableId:
+    Value: !Ref "AlbRouteTable"
+    Export:
+      Name: "AlbRouteTableId"
+
+  ReactRouteTableId:
+    Value: !Ref "ReactRouteTable"
+    Export:
+      Name: "ReactRouteTableId"
+
+  DjangoRouteTableId:
+    Value: !Ref "DjangoRouteTable"
+    Export:
+      Name: "DjangoRouteTableId"
+
+  DbRouteTableId:
+    Value: !Ref "DbRouteTable"
+    Export:
+      Name: "DbRouteTableId"

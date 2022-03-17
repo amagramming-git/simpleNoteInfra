@@ -1,0 +1,71 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Ecr"
+Resources:
+  ReactEcr:
+    Type: AWS::ECR::Repository
+    Properties:
+      ImageScanningConfiguration:
+        ScanOnPush: false
+      ImageTagMutability: MUTABLE
+      LifecyclePolicy: # 3世代で削除するLifecyclePolicyを設定
+        LifecyclePolicyText: |
+          {
+          	"rules": [
+          		{
+          			"rulePriority": 1,
+          			"description": "Delete more than 3 images",
+          			"selection": {
+          				"tagStatus": "any",
+          				"countType": "imageCountMoreThan",
+          				"countNumber": 3
+          			},
+          			"action": {
+          				"type": "expire"
+          			}
+          		}
+          	]
+          }
+      RepositoryName: "simplenote-react"
+      Tags:
+        - Key: Name
+          Value: "simplenote-react"
+
+  DjangoEcr:
+    Type: AWS::ECR::Repository
+    Properties:
+      ImageScanningConfiguration:
+        ScanOnPush: false
+      ImageTagMutability: MUTABLE
+      LifecyclePolicy: # 3世代で削除するLifecyclePolicyを設定
+        LifecyclePolicyText: |
+          {
+          	"rules": [
+          		{
+          			"rulePriority": 1,
+          			"description": "Delete more than 3 images",
+          			"selection": {
+          				"tagStatus": "any",
+          				"countType": "imageCountMoreThan",
+          				"countNumber": 3
+          			},
+          			"action": {
+          				"type": "expire"
+          			}
+          		}
+          	]
+          }
+      RepositoryName: "simplenote-django"
+      Tags:
+        - Key: Name
+          Value: "simplenote-django"
+
+Outputs:
+  ReactEcrRepositoryUri:
+    Value: !GetAtt "ReactEcr.RepositoryUri"
+    Export:
+      Name: "ReactEcrRepositoryUri"
+
+  DjangoEcrRepositoryUri:
+    Value: !GetAtt "DjangoEcr.RepositoryUri"
+    Export:
+      Name: "DjangoEcrRepositoryUri"

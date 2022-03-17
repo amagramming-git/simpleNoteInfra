@@ -1,0 +1,105 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Alb"
+
+Parameters:
+  Hostedzoneid:
+    Type: "String"
+  Dns:
+    Type: "String"
+
+Resources:
+  ### ALB本体 ###
+  Alb:
+    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
+    Properties:
+      IpAddressType: ipv4
+      Scheme: internet-facing
+      Subnets:
+        - !ImportValue "Subnet1Id"
+        - !ImportValue "Subnet5Id"
+      SecurityGroups:
+        - !ImportValue "AlbSecurityGroupId"
+      Name: "alb"
+      LoadBalancerAttributes:
+        - Key: "access_logs.s3.enabled"
+          Value: "false"
+        - Key: "idle_timeout.timeout_seconds"
+          Value: "3600"
+      Tags:
+        - Key: "Name"
+          Value: "alb"
+
+  ### ALBのレコードを該当のDNSに設定する ###
+  RecordSetALB:
+    Type: "AWS::Route53::RecordSet"
+    DependsOn: Alb
+    Properties:
+      HostedZoneName: !Join
+        - ""
+        - - !Ref "Dns"
+          - "."
+      Name: !Join
+        - ""
+        - - !Ref "Dns"
+          - "."
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt ["Alb", "DNSName"]
+        HostedZoneId: !GetAtt "Alb.CanonicalHostedZoneID"
+
+  ### SSL証明書を払い出す ###
+  Certificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref "Dns"
+      DomainValidationOptions:
+        - DomainName: !Ref "Dns"
+          HostedZoneId: !Ref "Hostedzoneid"
+      ValidationMethod: DNS
+
+  ### ALBにHTTPSのLisnerを設定する ###
+  AlbListener:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    DependsOn:
+      - Alb
+      - Certificate
+    Properties:
+      Certificates:
+        - CertificateArn: !Ref "Certificate"
+      DefaultActions:
+        - Type: "fixed-response"
+          FixedResponseConfig:
+            StatusCode: "503"
+            MessageBody: "現在メンテナンス中です。"
+      LoadBalancerArn: !Ref "Alb"
+      Port: 443
+      Protocol: "HTTPS"
+      SslPolicy: "ELBSecurityPolicy-2016-08" #default
+
+Outputs:
+  AlbArn:
+    Value: !Ref "Alb"
+    Export:
+      Name: "AlbArn"
+  AlbCanonicalHostedZoneID:
+    Value: !GetAtt "Alb.CanonicalHostedZoneID"
+    Export:
+      Name: "AlbCanonicalHostedZoneID"
+  AlbDnsName:
+    Value:
+      "Fn::GetAtt": ["Alb", "DNSName"]
+    Export:
+      Name: "AlbDnsName"
+  AlbFullName:
+    Value:
+      "Fn::GetAtt": ["Alb", "LoadBalancerFullName"]
+    Export:
+      Name: "AlbFullName"
+  CertificateArn:
+    Value: !Ref "Certificate"
+    Export:
+      Name: "CertificateArn"
+  AlbListenerArn:
+    Value: !Ref "AlbListener"
+    Export:
+      Name: "AlbListenerArn"
